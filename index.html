@@ -21,7 +21,7 @@
 </head>
 <body>
     <h2>Platformer Game</h2>
-    <p>Use Arrow keys to move and Spacebar to jump:</p>
+    <p>Use Arrow keys to move and Up Arrow key to jump:</p>
     <canvas id="gameCanvas" width="800" height="600"></canvas>
 
     <script>
@@ -40,10 +40,17 @@
             isGrounded: false
         };
 
-        const platform = {
-            x: 0,
-            y: canvas.height - 20,
-            width: canvas.width,
+        const platform1 = {
+            x: 200,
+            y: canvas.height - 150,
+            width: 100,
+            height: 20
+        };
+
+        const platform2 = {
+            x: 500,
+            y: canvas.height - 250,
+            width: 100,
             height: 20
         };
 
@@ -54,19 +61,20 @@
             ctx.fillStyle = 'blue';
             ctx.fillRect(player.x, player.y, player.width, player.height);
 
-            // Draw platform
+            // Draw platforms
             ctx.fillStyle = 'green';
-            ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+            ctx.fillRect(platform1.x, platform1.y, platform1.width, platform1.height);
+            ctx.fillRect(platform2.x, platform2.y, platform2.width, platform2.height);
 
             // Apply gravity
             if (!player.isGrounded) {
                 player.y += player.gravity;
             }
 
-            // Check for collision with platform
-            if (player.y + player.height >= platform.y && player.y + player.height <= platform.y + player.gravity && player.x + player.width >= platform.x && player.x <= platform.x + platform.width) {
-                player.y = platform.y - player.height;
+            // Check for collision with platforms
+            if (isColliding(player, platform1) || isColliding(player, platform2)) {
                 player.isGrounded = true;
+                player.jumpPower = 12; // Reset jump power when grounded
             } else {
                 player.isGrounded = false;
             }
@@ -80,22 +88,34 @@
             }
 
             // Jump
-            if (keys['Space'] && player.isGrounded) {
+            if (keys['ArrowUp'] && player.isGrounded) {
                 player.isJumping = true;
                 player.isGrounded = false;
             }
 
             if (player.isJumping) {
                 player.y -= player.jumpPower;
-                player.isJumping = false;
+                player.jumpPower -= player.gravity; // Apply gravity to jump
+                if (player.jumpPower <= 0) {
+                    player.isJumping = false;
+                }
             }
 
-            // Prevent player from going below the platform
-            if (player.y + player.height > canvas.height - platform.height) {
-                player.y = canvas.height - platform.height - player.height;
+            // Prevent player from going below the ground level
+            if (player.y + player.height > canvas.height) {
+                player.y = canvas.height - player.height;
+                player.isGrounded = true;
+                player.jumpPower = 12; // Reset jump power when grounded
             }
 
             requestAnimationFrame(gameLoop);
+        }
+
+        function isColliding(rect1, rect2) {
+            return rect1.x < rect2.x + rect2.width &&
+                   rect1.x + rect1.width > rect2.x &&
+                   rect1.y < rect2.y + rect2.height &&
+                   rect1.y + rect1.height > rect2.y;
         }
 
         const keys = {};
@@ -106,7 +126,7 @@
             keys[e.key] = false;
         });
 
-        gameLoop();
+        gameLoop(); // Start the game loop
     </script>
 </body>
 </html>
