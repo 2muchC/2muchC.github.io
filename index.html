@@ -140,6 +140,17 @@
 
             let playerOnNewLevel = false;
 
+            // Check collision with existing platforms
+            if (isColliding(player, platform1) && player.velocityY > 0) {
+                player.y = platform1.y - player.height;
+                player.velocityY = 0;
+                player.jumping = false;
+            } else if (isColliding(player, platform2) && player.velocityY > 0) {
+                player.y = platform2.y - player.height;
+                player.velocityY = 0;
+                player.jumping = false;
+            }
+
             // Check collision with platforms in the new level
             for (let platform of newLevelPlatforms) {
                 if (isColliding(player, platform) && player.velocityY > 0) {
