@@ -28,17 +28,17 @@
         const ctx = canvas.getContext('2d');
 
         let playerX = canvas.width / 2; // Player's initial X position
-        let playerY = canvas.height - 50; // Player's initial Y position
-        let blockSize = 50; // Size of the player and blocks
+        let playerY = canvas.height - 70; // Player's initial Y position (above the floor)
+        let blockSize = 50; // Size of the player and platforms
         let jumpForce = 12; // Strength of the player's jump
         let gravity = 0.6; // Strength of gravity
         let playerVelocityY = 0; // Vertical velocity of the player
         let onGround = false; // Flag to track if player is on the ground
 
-        // Define array for platforms (blocks)
+        // Define array for platforms
         let platforms = [
-            { x: 200, y: canvas.height - 100, width: 100, height: 20 },
-            { x: 500, y: canvas.height - 200, width: 100, height: 20 }
+            { x: 200, y: canvas.height - 150, width: 100, height: 20 },
+            { x: 500, y: canvas.height - 250, width: 100, height: 20 }
         ];
 
         // Main game loop
@@ -53,14 +53,23 @@
 
             // Check collision with each platform
             platforms.forEach(platform => {
-                if (playerX > platform.x && playerX < platform.x + platform.width &&
-                    playerY + blockSize / 2 > platform.y && playerY + blockSize / 2 < platform.y + platform.height) {
+                if (playerX + blockSize / 2 > platform.x && playerX - blockSize / 2 < platform.x + platform.width &&
+                    playerY + blockSize / 2 > platform.y && playerY - blockSize / 2 < platform.y + platform.height) {
                     // Player is on this platform
-                    playerY = platform.y - blockSize / 2; // Snap player to the top of the platform
+                    playerY = platform.y - blockSize / 2; // Position player on top of the platform
                     playerVelocityY = 0; // Reset vertical velocity
                     onGround = true; // Set onGround flag
                 }
             });
+
+            // Check collision with the ground (canvas bottom)
+            if (playerY + blockSize / 2 >= canvas.height) {
+                playerY = canvas.height - blockSize / 2; // Position player on top of the ground
+                playerVelocityY = 0; // Reset vertical velocity
+                onGround = true; // Set onGround flag
+            } else {
+                onGround = false; // Reset onGround flag if not on the ground
+            }
 
             // Update player position based on velocity
             playerY -= playerVelocityY;
