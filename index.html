@@ -3,24 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to Your Website</title>
+    <title>Space Ranger Game</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        canvas {
+            border: 1px solid #ccc;
+        }
+    </style>
 </head>
 <body>
-
-<!-- Boatload Puzzles Section -->
-<script type="text/javascript">
-    boatload_puzzles_format = 'Landscape';
-</script>
-<p>Loading <a href="https://www.boatloadpuzzles.com/playcrossword">crossword puzzle</a>. One moment please.</p>
-<script type="text/javascript" src="//www.boatloadpuzzles.com/Crossword.js"></script>
-
-<hr> <!-- Optional horizontal rule for visual separation -->
-
-<!-- Space Ranger Game Section -->
-<div>
     <h2>Space Ranger Game</h2>
     <p>Use Arrow keys to move the spaceship:</p>
-    <canvas id="gameCanvas" width="800" height="600" style="border: 1px solid #ccc;"></canvas>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
 
     <script>
         // Setup canvas
@@ -62,14 +62,4 @@
             keys[e.key] = true;
         });
         window.addEventListener('keyup', (e) => {
-            keys[e.key] = false;
-        });
-
-        // Start the game loop
-        gameLoop();
-    </script>
-</div>
-
-</body>
-</html>
-
+            keys[e.key] = fa
