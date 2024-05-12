@@ -58,11 +58,11 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             // Draw player
-            ctx.fillStyle = 'blue';
+            ctx.fillStyle = 'black';
             ctx.fillRect(player.x, player.y, player.width, player.height);
 
             // Draw platforms
-            ctx.fillStyle = 'green';
+            ctx.fillStyle = 'gray';
             ctx.fillRect(platform1.x, platform1.y, platform1.width, platform1.height);
             ctx.fillRect(platform2.x, platform2.y, platform2.width, platform2.height);
 
@@ -90,7 +90,7 @@
             // Jump
             if (keys['ArrowUp'] && player.isGrounded) {
                 player.isJumping = true;
-                player.isGrounded = false;
+                player.jumpPower = 12; // Set initial jump power
             }
 
             if (player.isJumping) {
