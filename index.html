@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Platformer Game with Color Change</title>
+    <title>Connor's Platformer</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,56 +12,68 @@
             align-items: center;
             height: 100vh;
             margin: 0;
+            overflow: hidden; /* Hide overflow to enable scrolling */
         }
         canvas {
             border: 2px solid black;
         }
+        #fakeWall {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100px; /* Adjust width as needed */
+            height: 100%; /* Full height of the screen */
+            background-color: white; /* Color of the fake wall */
+            z-index: 1; /* Ensure the wall is above canvas */
+        }
     </style>
 </head>
 <body>
+    <div id="fakeWall"></div>
     <canvas id="gameCanvas" width="600" height="400"></canvas>
     <br>
     <button id="colorChangeButton">Change Color</button>
 
     <script>
-        // Get canvas element and its context
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
-        // Player properties
         let player = {
             x: 50,
-            y: canvas.height - 70, // Adjusted player starting y-position
+            y: canvas.height - 70,
             width: 30,
             height: 50,
             speed: 5,
             velocityY: 0,
             jumping: false,
             jumpPower: 12,
-            color: 'blue', // Initial player color
+            color: 'black',
         };
 
-        // Platform properties (two blocks)
         const platform1 = {
             x: 150,
-            y: canvas.height - 100, // Adjusted platform1 y-position
+            y: canvas.height - 100,
             width: 100,
             height: 20,
         };
 
         const platform2 = {
             x: 350,
-            y: canvas.height - 170, // Adjusted platform2 y-position
+            y: canvas.height - 170,
             width: 100,
             height: 20,
         };
 
-        // Controls
+        const newLevelPlatforms = [
+            { x: canvas.width + 50, y: canvas.height - 100, width: 100, height: 20 }, // Platform 1 in the new level
+            { x: canvas.width + 200, y: canvas.height - 170, width: 100, height: 20 }, // Platform 2 in the new level
+            { x: canvas.width + 350, y: canvas.height - 240, width: 100, height: 20 }, // Platform 3 in the new level
+        ];
+
         let leftPressed = false;
         let rightPressed = false;
         let spacePressed = false;
 
-        // Event listener for keyboard input
         document.addEventListener('keydown', (event) => {
             if (event.key === 'ArrowLeft' || event.key === 'a') {
                 leftPressed = true;
@@ -82,10 +94,8 @@
             }
         });
 
-        // Event listener for color change button
         const colorChangeButton = document.getElementById('colorChangeButton');
         colorChangeButton.addEventListener('click', () => {
-            // Generate a random color for the player
             player.color = generateRandomColor();
         });
 
@@ -99,53 +109,68 @@
         }
 
         function update() {
-            // Move player left or right
             if (leftPressed && player.x > 0) {
                 player.x -= player.speed;
+                // Scroll screen to the left if player moves close to left edge
+                if (player.x < canvas.width / 4) {
+                    document.body.scrollLeft -= player.speed;
+                }
             } else if (rightPressed && player.x + player.width < canvas.width) {
                 player.x += player.speed;
+                // Scroll screen to the right if player moves close to right edge
+                if (player.x > canvas.width * 0.75) {
+                    document.body.scrollLeft += player.speed;
+                }
             }
 
-            // Jumping
             if (spacePressed && !player.jumping) {
                 player.velocityY = -player.jumpPower;
                 player.jumping = true;
             }
 
-            // Apply gravity
             const gravity = 0.6;
             player.velocityY += gravity;
             player.y += player.velocityY;
 
-            // Check if player touches ground (including platforms)
             if (player.y + player.height >= canvas.height) {
                 player.y = canvas.height - player.height;
                 player.velocityY = 0;
                 player.jumping = false;
             }
 
-            // Check collision with platforms
-            if (isColliding(player, platform1) && player.velocityY > 0) {
-                player.y = platform1.y - player.height;
-                player.velocityY = 0;
-                player.jumping = false;
-            } else if (isColliding(player, platform2) && player.velocityY > 0) {
-                player.y = platform2.y - player.height;
-                player.velocityY = 0;
-                player.jumping = false;
+            let playerOnNewLevel = false;
+
+            // Check collision with platforms in the new level
+            for (let platform of newLevelPlatforms) {
+                if (isColliding(player, platform) && player.velocityY > 0) {
+                    player.y = platform.y - player.height;
+                    player.velocityY = 0;
+                    player.jumping = false;
+                    playerOnNewLevel = true;
+                    break;
+                }
             }
 
-            // Clear canvas
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Draw player with the current color
             ctx.fillStyle = player.color;
             ctx.fillRect(player.x, player.y, player.width, player.height);
 
-            // Draw platforms
             ctx.fillStyle = 'green';
             ctx.fillRect(platform1.x, platform1.y, platform1.width, platform1.height);
             ctx.fillRect(platform2.x, platform2.y, platform2.width, platform2.height);
+
+            // Draw platforms in the new level
+            ctx.fillStyle = 'blue';
+            for (let platform of newLevelPlatforms) {
+                ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+            }
+
+            if (playerOnNewLevel) {
+                // Scroll screen to the right if player is in the new level area
+                if (player.x + player.width > canvas.width * 0.75) {
+                    document.body.scrollLeft += player.speed;
+                }
+            }
 
             requestAnimationFrame(update);
         }
