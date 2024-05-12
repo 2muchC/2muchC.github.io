@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Platformer Game</title>
+    <title>Platformer Game with Color Change</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -20,6 +20,8 @@
 </head>
 <body>
     <canvas id="gameCanvas" width="600" height="400"></canvas>
+    <br>
+    <button id="colorChangeButton">Change Color</button>
 
     <script>
         // Get canvas element and its context
@@ -36,6 +38,22 @@
             velocityY: 0,
             jumping: false,
             jumpPower: 10,
+            color: 'blue', // Initial player color
+        };
+
+        // Platform properties (two blocks)
+        const platform1 = {
+            x: 150,
+            y: canvas.height - 150,
+            width: 100,
+            height: 20,
+        };
+
+        const platform2 = {
+            x: 350,
+            y: canvas.height - 220,
+            width: 100,
+            height: 20,
         };
 
         // Controls
@@ -43,6 +61,7 @@
         let rightPressed = false;
         let spacePressed = false;
 
+        // Event listener for keyboard input
         document.addEventListener('keydown', (event) => {
             if (event.key === 'ArrowLeft' || event.key === 'a') {
                 leftPressed = true;
@@ -63,6 +82,22 @@
             }
         });
 
+        // Event listener for color change button
+        const colorChangeButton = document.getElementById('colorChangeButton');
+        colorChangeButton.addEventListener('click', () => {
+            // Generate a random color for the player
+            player.color = generateRandomColor();
+        });
+
+        function generateRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
         function update() {
             // Move player left or right
             if (leftPressed && player.x > 0) {
@@ -82,9 +117,16 @@
             player.velocityY += gravity;
             player.y += player.velocityY;
 
-            // Check if player touches ground
+            // Check if player touches ground (including platforms)
             if (player.y + player.height >= canvas.height - 20) { // 20 is ground thickness
                 player.y = canvas.height - player.height - 20;
+                player.velocityY = 0;
+                player.jumping = false;
+            }
+
+            // Check collision with platforms
+            if (isColliding(player, platform1) || isColliding(player, platform2)) {
+                player.y = canvas.height - platform1.height - player.height;
                 player.velocityY = 0;
                 player.jumping = false;
             }
@@ -92,11 +134,23 @@
             // Clear canvas
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Draw player
-            ctx.fillStyle = 'blue';
+            // Draw player with the current color
+            ctx.fillStyle = player.color;
             ctx.fillRect(player.x, player.y, player.width, player.height);
 
+            // Draw platforms
+            ctx.fillStyle = 'green';
+            ctx.fillRect(platform1.x, platform1.y, platform1.width, platform1.height);
+            ctx.fillRect(platform2.x, platform2.y, platform2.width, platform2.height);
+
             requestAnimationFrame(update);
+        }
+
+        function isColliding(rect1, rect2) {
+            return rect1.x < rect2.x + rect2.width &&
+                   rect1.x + rect1.width > rect2.x &&
+                   rect1.y < rect2.y + rect2.height &&
+                   rect1.y + rect1.height > rect2.y;
         }
 
         update();
