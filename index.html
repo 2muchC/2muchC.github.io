@@ -96,6 +96,8 @@
             if (player.isJumping) {
                 player.y -= player.jumpPower;
                 player.jumpPower -= player.gravity; // Apply gravity to jump
+
+                // Check if jump is complete
                 if (player.jumpPower <= 0) {
                     player.isJumping = false;
                 }
