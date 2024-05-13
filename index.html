@@ -28,8 +28,6 @@
             width: 20,
             height: 20,
             speed: 5,
-            velocityX: 0,
-            velocityY: 0,
             jumpForce: 12,
             gravity: 0.6,
             isJumping: false
@@ -55,22 +53,26 @@
         // Game loop
         function gameLoop() {
             // Apply gravity
-            player.velocityY += player.gravity;
+            player.y += player.gravity;
 
             // Handle horizontal movement
             if (keys['ArrowLeft']) {
-                player.velocityX = -player.speed;
+                player.x -= player.speed;
             } else if (keys['ArrowRight']) {
-                player.velocityX = player.speed;
-            } else {
-                player.velocityX = 0;
+                player.x += player.speed;
             }
 
-            // Apply horizontal velocity
-            player.x += player.velocityX;
+            // Handle jumping
+            if (keys['ArrowUp'] && !player.isJumping) {
+                player.isJumping = true;
+                player.velocityY = -player.jumpForce;
+            }
 
-            // Apply vertical velocity
-            player.y += player.velocityY;
+            // Update vertical position (jumping)
+            if (player.isJumping) {
+                player.y += player.velocityY;
+                player.velocityY += player.gravity;
+            }
 
             // Check collision with platform
             if (
@@ -80,24 +82,14 @@
                 player.y < platform.y + platform.height
             ) {
                 // Player is on the platform
+                player.isJumping = false;
                 player.y = platform.y - player.height;
                 player.velocityY = 0;
-                player.isJumping = false;
-            } else {
-                // Player is not on the platform
-                player.isJumping = true;
-            }
-
-            // Handle jumping
-            if (keys['ArrowUp'] && !player.isJumping) {
-                player.velocityY = -player.jumpForce;
-                player.isJumping = true;
             }
 
             // Prevent player from falling through the bottom of the canvas
             if (player.y + player.height > canvas.height) {
                 player.y = canvas.height - player.height;
-                player.velocityY = 0;
                 player.isJumping = false;
             }
 
