@@ -4,12 +4,12 @@
     <title>Player Movement</title>
     <style>
         canvas {
-            border: 1px solid black;
+            border: 3px solid gray;
         }
     </style>
 </head>
 <body>
-    <canvas id="gameCanvas" width="1000" height="1000"></canvas>
+    <canvas id="gameCanvas" width="1280" height="720"></canvas>
     <script>
         // Set up canvas and context
         const canvas = document.getElementById('gameCanvas');
@@ -19,7 +19,7 @@
         const player = {
             x: canvas.width / 2,
             y: canvas.height / 2,
-            speed: 10
+            speed: 8
         };
 
         // Handle keyboard input
