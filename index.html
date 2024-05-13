@@ -1,10 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Player Movement</title>
+    <title>Connor's Platformer</title>
     <style>
+        body {
+            background-color: lightgray;
+            margin: 0;
+            overflow: hidden; /* Prevent scrolling */
+        }
         canvas {
-            border: 3px solid gray;
+            display: block;
+            border: 5px solid black;
         }
     </style>
 </head>
@@ -19,17 +25,23 @@
         const player = {
             x: canvas.width / 2,
             y: canvas.height / 2,
-            speed: 8
+            width: 20,
+            height: 20,
+            speed: 8,
+            velocityY: 0,  // Vertical velocity (for gravity)
+            jumpForce: 12,
+            gravity: 0.5,
+            isJumping: false
         };
 
         // Handle keyboard input
         window.addEventListener('keydown', (e) => {
             switch(e.key) {
                 case 'ArrowUp':
-                    player.y -= player.speed;
-                    break;
-                case 'ArrowDown':
-                    player.y += player.speed;
+                    if (!player.isJumping) {
+                        player.velocityY = -player.jumpForce;
+                        player.isJumping = true;
+                    }
                     break;
                 case 'ArrowLeft':
                     player.x -= player.speed;
@@ -42,12 +54,23 @@
 
         // Game loop
         function gameLoop() {
+            // Apply gravity
+            player.velocityY += player.gravity;
+            player.y += player.velocityY;
+
+            // Check collision with ground (canvas bottom)
+            if (player.y + player.height > canvas.height) {
+                player.y = canvas.height - player.height;
+                player.velocityY = 0;
+                player.isJumping = false;
+            }
+
             // Clear canvas
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             // Draw player
             ctx.fillStyle = 'black';
-            ctx.fillRect(player.x - 10, player.y - 10, 20, 20);
+            ctx.fillRect(player.x - player.width / 2, player.y - player.height / 2, player.width, player.height);
 
             // Request next frame
             requestAnimationFrame(gameLoop);
