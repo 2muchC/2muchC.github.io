@@ -13,6 +13,7 @@
             height: 100vh;
             margin: 0;
             overflow: hidden; /* Hide overflow to enable scrolling */
+            position: relative; /* Enable positioning for fake wall */
         }
         canvas {
             border: 2px solid black;
@@ -21,8 +22,8 @@
             position: absolute;
             top: 0;
             left: 0;
-            width: 100px; /* Adjust width as needed */
-            height: 100%; /* Full height of the screen */
+            width: 100%; /* Full width of the screen */
+            height: 100px; /* Adjust height as needed */
             background-color: white; /* Color of the fake wall */
             z-index: 1; /* Ensure the wall is above canvas */
         }
@@ -30,7 +31,7 @@
 </head>
 <body>
     <div id="fakeWall"></div>
-    <canvas id="gameCanvas" width="600" height="400"></canvas>
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
     <br>
     <button id="colorChangeButton">Change Color</button>
 
@@ -50,24 +51,12 @@
             color: 'black',
         };
 
-        const platform1 = {
-            x: 150,
-            y: canvas.height - 100,
-            width: 100,
-            height: 20,
-        };
-
-        const platform2 = {
-            x: 350,
-            y: canvas.height - 170,
-            width: 100,
-            height: 20,
-        };
-
-        const newLevelPlatforms = [
-            { x: canvas.width + 50, y: canvas.height - 100, width: 100, height: 20 }, // Platform 1 in the new level
-            { x: canvas.width + 200, y: canvas.height - 170, width: 100, height: 20 }, // Platform 2 in the new level
-            { x: canvas.width + 350, y: canvas.height - 240, width: 100, height: 20 }, // Platform 3 in the new level
+        const platforms = [
+            { x: 150, y: canvas.height - 100, width: 100, height: 20, color: 'green' },
+            { x: 350, y: canvas.height - 170, width: 100, height: 20, color: 'green' },
+            { x: canvas.width + 50, y: canvas.height - 100, width: 100, height: 20, color: 'blue' },
+            { x: canvas.width + 200, y: canvas.height - 170, width: 100, height: 20, color: 'blue' },
+            { x: canvas.width + 350, y: canvas.height - 240, width: 100, height: 20, color: 'blue' }
         ];
 
         let leftPressed = false;
@@ -111,16 +100,8 @@
         function update() {
             if (leftPressed && player.x > 0) {
                 player.x -= player.speed;
-                // Scroll screen to the left if player moves close to left edge
-                if (player.x < canvas.width / 4) {
-                    document.body.scrollLeft -= player.speed;
-                }
             } else if (rightPressed && player.x + player.width < canvas.width) {
                 player.x += player.speed;
-                // Scroll screen to the right if player moves close to right edge
-                if (player.x > canvas.width * 0.75) {
-                    document.body.scrollLeft += player.speed;
-                }
             }
 
             if (spacePressed && !player.jumping) {
@@ -138,49 +119,25 @@
                 player.jumping = false;
             }
 
-            let playerOnNewLevel = false;
-
-            // Check collision with existing platforms
-            if (isColliding(player, platform1) && player.velocityY > 0) {
-                player.y = platform1.y - player.height;
-                player.velocityY = 0;
-                player.jumping = false;
-            } else if (isColliding(player, platform2) && player.velocityY > 0) {
-                player.y = platform2.y - player.height;
-                player.velocityY = 0;
-                player.jumping = false;
-            }
-
-            // Check collision with platforms in the new level
-            for (let platform of newLevelPlatforms) {
+            // Check collision with platforms
+            for (let platform of platforms) {
                 if (isColliding(player, platform) && player.velocityY > 0) {
                     player.y = platform.y - player.height;
                     player.velocityY = 0;
                     player.jumping = false;
-                    playerOnNewLevel = true;
-                    break;
                 }
             }
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw player
             ctx.fillStyle = player.color;
             ctx.fillRect(player.x, player.y, player.width, player.height);
 
-            ctx.fillStyle = 'green';
-            ctx.fillRect(platform1.x, platform1.y, platform1.width, platform1.height);
-            ctx.fillRect(platform2.x, platform2.y, platform2.width, platform2.height);
-
-            // Draw platforms in the new level
-            ctx.fillStyle = 'blue';
-            for (let platform of newLevelPlatforms) {
+            // Draw platforms
+            for (let platform of platforms) {
+                ctx.fillStyle = platform.color;
                 ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
-            }
-
-            if (playerOnNewLevel) {
-                // Scroll screen to the right if player is in the new level area
-                if (player.x + player.width > canvas.width * 0.75) {
-                    document.body.scrollLeft += player.speed;
-                }
             }
 
             requestAnimationFrame(update);
