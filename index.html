@@ -27,18 +27,18 @@
             y: canvas.height / 2,
             width: 20,
             height: 20,
-            speed: 8,
+            speed: 5,
             velocityX: 0,
             velocityY: 0,
             jumpForce: 12,
-            gravity: 0.5,
+            gravity: 0.6,
             isJumping: false
         };
 
         // Platform object
         const platform = {
             x: 200,
-            y: 500,
+            y: canvas.height - 50,
             width: 150,
             height: 20
         };
@@ -83,6 +83,9 @@
                 player.y = platform.y - player.height;
                 player.velocityY = 0;
                 player.isJumping = false;
+            } else {
+                // Player is not on the platform
+                player.isJumping = true;
             }
 
             // Prevent player from falling through the bottom of the canvas
