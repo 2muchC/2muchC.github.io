@@ -88,6 +88,12 @@
                 player.isJumping = true;
             }
 
+            // Handle jumping
+            if (keys['ArrowUp'] && !player.isJumping) {
+                player.velocityY = -player.jumpForce;
+                player.isJumping = true;
+            }
+
             // Prevent player from falling through the bottom of the canvas
             if (player.y + player.height > canvas.height) {
                 player.y = canvas.height - player.height;
